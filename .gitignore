@@ -1,0 +1,14 @@
+.idea
+node_modules
+.env.*
+.env
+coverage
+coverage.json
+typechain-types
+#Hardhat files
+cache
+artifacts
+.openzeppelin
+types
+.DS_Store
+scripts_backup
