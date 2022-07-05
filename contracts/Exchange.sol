@@ -7,12 +7,13 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {NDR} from "../token.sol";
+import "./interfaces/IPancakeRouter02.sol";
+import {NDR} from "./NDR.sol";
 
+contract Exchange is Pausable , Ownable {
+    address private constant BSC_ROUTER = 0xD99D1c33F9fC3444f8101754aBC46c52416550D1;
+    address private constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-
-
-contract exchange is Pausable , Ownable{
     using SafeMath for uint256;
 
     uint256 fee; 
@@ -31,6 +32,61 @@ contract exchange is Pausable , Ownable{
 
     event buy (address _buyer, uint256 _amount);
     event sell (address _seller, uint256 _amount);
+
+    function swap(
+        address _tokenIn,
+        address _tokenOut,
+        uint _amountIn,
+        uint _amountOutMin,
+        address _to
+    ) external {
+        IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
+        IERC20(_tokenIn).approve(BSC_ROUTER, _amountIn);
+
+        address[] memory path;
+        if (_tokenIn == WETH || _tokenOut == WETH) {
+            path = new address[](2);
+            path[0] = _tokenIn;
+            path[1] = _tokenOut;
+        } else {
+            path = new address[](3);
+            path[0] = _tokenIn;
+            path[1] = WETH;
+            path[2] = _tokenOut;
+        }
+
+        IUniswapV2Router(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
+            _amountIn,
+            _amountOutMin,
+            path,
+            _to,
+            block.timestamp
+        );
+    }
+
+    function getAmountOutMin(
+        address _tokenIn,
+        address _tokenOut,
+        uint _amountIn
+    ) external view returns (uint) {
+        address[] memory path;
+        if (_tokenIn == WETH || _tokenOut == WETH) {
+            path = new address[](2);
+            path[0] = _tokenIn;
+            path[1] = _tokenOut;
+        } else {
+            path = new address[](3);
+            path[0] = _tokenIn;
+            path[1] = WETH;
+            path[2] = _tokenOut;
+        }
+
+        // same length as path
+        uint[] memory amountOutMins =
+        IUniswapV2Router(UNISWAP_V2_ROUTER).getAmountsOut(_amountIn, path);
+
+        return amountOutMins[path.length - 1];
+    }
 
     function fetchLatestPrice() internal view returns (int) {
         (

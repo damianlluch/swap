@@ -15,7 +15,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 module.exports = {
-  solidity: "0.8.6",
+  solidity: "0.8.14",
   settings: {
     optimizer: {
       enabled: true,
@@ -25,15 +25,6 @@ module.exports = {
   networks: {
     ganache: {
       url: `http://127.0.0.1:7545`
-    },
-    woonkly: {
-      url: `http://ec2-54-93-234-47.eu-central-1.compute.amazonaws.com:8545`,
-      chainId: 2023,
-      gas: 0x47b760,
-      gasPrice: 0x34630b8a00,
-      blockGasLimit: 0x47b760,
-      allowUnlimitedContractSize: true,
-      timeout: 1800000
     },
     testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
@@ -49,11 +40,6 @@ module.exports = {
     hardhat: {
       chainId: 1337,
       allowUnlimitedContractSize: true
-    },
-    rinkeby: {
-      url: process.env.RINKEBY_NETWORK_URL || "",
-      accounts:
-        process.env.OWNER_PRIVATE_KEY !== undefined ? [process.env.OWNER_PRIVATE_KEY, process.env.BUYER_PRIVATE_KEY] : [],
     }
   },
 };
