@@ -55,7 +55,7 @@ contract Exchange is Pausable , Ownable {
             path[2] = _tokenOut;
         }
 
-        IUniswapV2Router(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
+        IPancakeRouter02(BSC_ROUTER).swapExactTokensForTokens(
             _amountIn,
             _amountOutMin,
             path,
@@ -129,9 +129,11 @@ contract Exchange is Pausable , Ownable {
         uint256 amount = _amount - feeAmount;
         require(exchangeToken.balanceOf(msg.sender) >= _amount, "No tienes saldo suficiente");
         uint totalToken = (amount*10**18) / uint(goldPrice);
-        token.mint(msg.sender, totalToken);
-        exchangeToken.transferFrom(msg.sender, address(this), _amount);
-        exchangeToken.transfer(wallet, feeAmount);
+
+        // token.mint(msg.sender, totalToken);
+        // exchangeToken.transferFrom(msg.sender, address(this), _amount);
+        // exchangeToken.transfer(wallet, feeAmount);
+
         emit buy(msg.sender, totalToken);
     }
     
@@ -143,9 +145,11 @@ contract Exchange is Pausable , Ownable {
         require(exchangeToken.balanceOf(address(this)) >= totalexchangeToken, "El contrato no tiene saldo suficiente");
         uint256 feeAmount = totalexchangeToken.mul(fee).div(100 * 10 ** 18); 
         uint256 amount = totalexchangeToken - feeAmount;
-        token.burnFrom(msg.sender, _amount);
-        exchangeToken.transfer(wallet, feeAmount);
-        exchangeToken.transfer(msg.sender, amount);
+
+        // token.burnFrom(msg.sender, _amount);
+        // exchangeToken.transfer(wallet, feeAmount);
+        // exchangeToken.transfer(msg.sender, amount);
+
         emit sell(msg.sender, _amount);
     }
 
@@ -161,7 +165,7 @@ contract Exchange is Pausable , Ownable {
     }
 
     function withdrawBNB() public payable onlyOwner{
-    payable(msg.sender).transfer(address(this).balance);
+        payable(msg.sender).transfer(address(this).balance);
     }
 }
 
