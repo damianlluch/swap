@@ -12,7 +12,7 @@ import {NDR} from "./NDR.sol";
 
 contract Exchange is Pausable , Ownable {
     address private constant BSC_ROUTER = 0xD99D1c33F9fC3444f8101754aBC46c52416550D1;
-    address private constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address private constant USDT = 0x337610d27c682E347C9cD60BD4b3b107C9d34dDd;
 
     using SafeMath for uint256;
 
@@ -27,7 +27,7 @@ contract Exchange is Pausable , Ownable {
     constructor(address _wallet) {
         wallet = _wallet;
         fee = 1000000000000000000;
-        token = NDR(0xA2a5ee61E6a0c993fB5060FA7B8270cc2cDC7c08);
+        token = NDR(0x16ae1a23e9a0FD4dD7513427108b1B300D8C6042);
     }
 
     event buy (address _buyer, uint256 _amount);
@@ -44,7 +44,7 @@ contract Exchange is Pausable , Ownable {
         IERC20(_tokenIn).approve(BSC_ROUTER, _amountIn);
 
         address[] memory path;
-        if (_tokenIn == WETH || _tokenOut == WETH) {
+        if (_tokenIn == USDT || _tokenOut == USDT) {
             path = new address[](2);
             path[0] = _tokenIn;
             path[1] = _tokenOut;
@@ -70,20 +70,20 @@ contract Exchange is Pausable , Ownable {
         uint _amountIn
     ) external view returns (uint) {
         address[] memory path;
-        if (_tokenIn == WETH || _tokenOut == WETH) {
+        if (_tokenIn == USDT || _tokenOut == USDT) {
             path = new address[](2);
             path[0] = _tokenIn;
             path[1] = _tokenOut;
         } else {
             path = new address[](3);
             path[0] = _tokenIn;
-            path[1] = WETH;
+            path[1] = USDT;
             path[2] = _tokenOut;
         }
 
         // same length as path
         uint[] memory amountOutMins =
-        IUniswapV2Router(UNISWAP_V2_ROUTER).getAmountsOut(_amountIn, path);
+        IPancakeRouter02(BSC_ROUTER).getAmountsOut(_amountIn, path);
 
         return amountOutMins[path.length - 1];
     }
